@@ -82,4 +82,18 @@ default. However, after replacing missing `steps` values with the mean `steps`
 of associated `interval` value, these 0 values are removed from the histogram
 of total number of steps taken each day.
 ## Are there differences in activity patterns between weekdays and weekends?
-
+First, create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+```{r}
+weekdayMeasures <- weekdays(as.Date(replaceddata$date))
+weekdayMeasures[weekdayMeasures %in% c('Saturday','Sunday')] <- "weekend"
+weekdayMeasures[weekdayMeasures != "weekend"] <- "weekday"
+replaceddata["dayType"] <- weekdayMeasures
+```
+Now, let's make a panel plot containing plots of average number of steps taken
+on weekdays and weekends.
+```{r}
+replaceddata$dayType <- as.factor(replaceddata$dayType)
+replacedStepTraveled <- aggregate(steps ~ interval + dayType, replaceddata, mean)
+qplot(interval, steps,geom=c("line"), data = replacedStepTraveled,xlab = "Interval", ylab = "Number of steps", main = "") +
+facet_wrap(~ dayType, ncol = 1)
+```
